@@ -23,150 +23,233 @@
     line-height:1.65;
     color:#222;
     background:url("tlo.jpg") center/cover no-repeat fixed;
-    padding-top: var(--navH);
+    padding-top: var(--navH); /* miejsce pod przyklejone menu na mobile */
   }
 
+  /* HEADER (logo znika przy scrollu) */
   header{
-    text-align:center;
-    background:rgba(255,255,255,.82);
-    padding:40px 20px;
-    transition:opacity .8s ease;
+    text-align:center; background:rgba(255,255,255,.82);
+    padding:40px 20px; transition:opacity .8s ease;
   }
-  header img{ width: clamp(280px, 20vw, 360px); max-width:92%; height:auto; }
+  header img{ width:clamp(280px, 20vw, 360px); max-width:92%; height:auto; }
 
-  /* NAV */
+  /* NAV (desktop domyślnie poziome) */
   nav{
-    display:flex; justify-content:center; gap:8px;
-    background:rgba(255,255,255,.92);
-    position:sticky; top:0; left:0; right:0; z-index:20;
-    border-bottom:1px solid rgba(0,0,0,.06);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    position:sticky; top:0; left:0; right:0; z-index:30;
+    background:rgba(255,255,255,.92); border-bottom:1px solid rgba(0,0,0,.06);
     backdrop-filter: blur(6px);
   }
+  .nav-inner{ display:flex; align-items:center; gap:8px; }
+  .nav-links{ display:flex; gap:8px; }
   nav a{
     font-family:'Great Vibes', cursive;
     font-size: clamp(22px, 1.8vw + 6px, 34px);
-    font-weight:400;
-    color:#444; text-decoration:none;
-    padding:10px 16px; margin:10px 4px;
-    border-radius:12px;
+    font-weight:400; color:#444; text-decoration:none;
+    padding:10px 16px; margin:10px 4px; border-radius:12px;
     transition:transform .2s ease, color .2s ease, background-color .2s ease;
   }
   nav a:hover{ transform:scale(1.06); color:var(--accent); background:rgba(211,107,138,.12); }
 
-  /* Hamburger przycisk (mobile) */
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 36px;
-    height: 36px;
-    margin: 10px 15px;
-    cursor: pointer;
-    z-index: 30;
+  /* HAMBURGER (pokazujemy tylko na mobile) */
+  .hamburger{
+    display:none; flex-direction:column; justify-content:center; align-items:center;
+    width:40px; height:40px; margin:8px 10px; cursor:pointer;
   }
-  .hamburger span {
-    background: #444;
-    width: 26px;
-    height: 3px;
-    border-radius: 2px;
-    margin: 3px 0;
-    transition: 0.4s;
-  }
-
-  /* Menu rozwijane na mobile */
-  .nav-links {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .nav-links.active {
-    display: block;
-    flex-direction: column;
-    text-align: center;
-    background: rgba(255,255,255,0.95);
-    position: absolute;
-    top: 60px;
-    left: 0;
-    right: 0;
-    padding: 15px 0;
-    border-radius: 0 0 12px 12px;
-  }
-  .nav-links.active a {
-    display: block;
-    padding: 12px;
-    font-size: 26px;
-  }
+  .hamburger span{ width:26px; height:3px; background:#444; border-radius:2px; margin:3px 0; transition:.35s; }
+  .hamburger.open span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  .hamburger.open span:nth-child(2){ opacity:0; }
+  .hamburger.open span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
 
   /* SEKCJE */
   section{ width:100%; padding:72px 0; }
   .wrap{ max-width:1100px; margin:0 auto; padding:0 20px; }
+  /* offset dla kotwic, aby nagłówek nie chował się pod menu */
+  section, .wrap > * { scroll-margin-top: calc(var(--navH) + 10px); }
+
   h2{
     font-family:'Great Vibes', cursive;
     color:var(--accent); text-align:center;
     font-size: clamp(34px, 3vw + 12px, 64px);
+    line-height:1.1; margin:0 0 18px;
   }
+
+  /* KARUZELA „Dlaczego to działa” */
+  #dlaczego .wrap{ overflow:visible; }
+  .carousel{ overflow:hidden; position:relative; margin-top:32px; touch-action: pan-y; }
+  .carousel-track{ display:flex; will-change:transform; transition: transform .55s ease-in-out; }
+  .card{ flex:0 0 50%; box-sizing:border-box; padding:20px; }
+  .card-inner{
+    background:rgba(255,255,255,.95); border-radius:28px;
+    box-shadow:0 10px 25px rgba(0,0,0,.12);
+    padding:25px; display:flex; align-items:center; gap:16px; height:160px;
+  }
+  .icon{ flex:0 0 60px; width:60px; height:60px; display:grid; place-items:center; border-radius:16px; background:rgba(211,107,138,.12); }
+  .icon svg{ width:32px; height:32px; stroke:var(--accent); fill:none; stroke-width:2; }
+  .txt h3{ margin:0 0 6px; font-size:1.1em; color:#222; }
+  .txt p{ margin:0; color:#555; font-size:.95em; }
+
+  /* GALERIA ZDJĘĆ */
+  .gallery{ display:flex; justify-content:center; gap:min(3vw,24px); margin-top:10px; }
+  .tile{
+    width:28%; min-width:220px; border-radius:16px; overflow:hidden;
+    box-shadow:0 8px 18px rgba(0,0,0,.14);
+    transform: rotate(var(--rot,0deg));
+    transition: transform .45s ease, box-shadow .3s ease, z-index .2s ease;
+    cursor:pointer; position:relative;
+  }
+  .tile img{ width:100%; height:auto; display:block; object-fit:cover; }
+  .tile:nth-child(1){ --rot:-2.5deg; } .tile:nth-child(2){ --rot:2deg; } .tile:nth-child(3){ --rot:-1.5deg; }
+  .tile:hover{ transform: rotate(0deg) scale(1.6); z-index:20; box-shadow:0 24px 60px rgba(0,0,0,.35); }
 
   /* FOOTER */
-  footer{
-    text-align:center; padding:24px 16px;
-    background:rgba(255,255,255,.92); color:#666; font-size:14px;
-    border-top:1px solid rgba(0,0,0,.06); width:100%;
-  }
+  footer{ text-align:center; padding:24px 16px; background:rgba(255,255,255,.92); color:#666; font-size:14px; border-top:1px solid rgba(0,0,0,.06); }
 
-  /* MOBILE STYLING */
-  @media (max-width: 820px) {
-    body{ background-attachment: scroll; }
-    nav { position: fixed; top: 0; left: 0; right: 0; flex-direction: column; }
-    .nav-links { display: none; width: 100%; }
-    .hamburger { display: flex; }
-  }
+  /* PREFERENCJE RUCHU */
+  @media (prefers-reduced-motion: reduce){ .carousel-track{ transition:none !important; } }
 
+  /* MOBILE */
+  @media (max-width: 820px){
+    body{ background-attachment: scroll; } /* wydajniej na telefonach */
+    nav{ position:fixed; top:0; }
+    .nav-inner{ width:100%; justify-content:space-between; padding:0 8px; }
+    .hamburger{ display:flex; }
+    .nav-links{
+      display:none; position:absolute; top:100%; left:0; right:0;
+      flex-direction:column; align-items:center; background:rgba(255,255,255,.97);
+      border-bottom:1px solid rgba(0,0,0,.06); padding:8px 0 14px;
+    }
+    .nav-links.show{ display:flex; }
+    .nav-links a{ font-size:28px; padding:10px 14px; margin:6px 0; }
+    section{ padding:56px 0; }
+    .wrap{ padding:0 16px; }
+    .gallery{ flex-direction:column; align-items:center; }
+    .tile{ width:92%; transform:none !important; }
+    .tile:hover{ transform:scale(1.04) !important; }
+    .card{ flex:0 0 100%; }
+    .card-inner{ height:152px; }
+  }
 </style>
 </head>
 <body>
 
 <header id="header">
-  <img src="logo.png" alt="Liliski – Biżuteria Marzeń">
+  <img src="logo.png" alt="Liliski – Biżuteria Marzeń" loading="lazy">
 </header>
 
-<nav>
-  <div class="hamburger" id="hamburger">
-    <span></span><span></span><span></span>
-  </div>
-  <div class="nav-links" id="navLinks">
-    <a href="#onas">O nas</a>
-    <a href="#oferta">Oferta</a>
-    <a href="#galeria">Galeria</a>
-    <a href="#kontakt">Kontakt</a>
+<nav id="topnav">
+  <div class="nav-inner">
+    <div class="hamburger" id="hamburger" aria-label="Otwórz menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#onas">O nas</a>
+      <a href="#oferta">Oferta</a>
+      <a href="#dlaczego">Dlaczego to działa?</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#kontakt">Kontakt</a>
+    </div>
   </div>
 </nav>
 
 <section id="onas">
   <div class="wrap">
     <h2>O nas</h2>
-    <p>Pierwsza bransoletka pojawiła się z potrzeby wiary. Większość z nas chce przyciągać do siebie bogactwo i szczęście – to zapewnia cytryn.</p>
+    <p><strong>Skąd ten pomysł?</strong></p>
+    <p>Pierwsza bransoletka pojawiła się z potrzeby wiary.
+    Większość z nas chce przyciągać do siebie bogactwo i szczęście – to zapewnia cytryn.
+    Postanowiłam zrobić bransoletkę sama, tak aby miała dla mnie jeszcze większą wartość,
+    zakupiłam potrzebne mi materiały i zrobiłam ją!
+    Z pomocą męża stworzyłam swoją bransoletkę z kamieni naturalnych.
+    Nie spodziewałam się, że przyciągnie ona tyle uwagi,
+    jednak już po dniu przyjaciółka poprosiła mnie o zrobienie 2 sztuk.
+    Za nią posypały się zamówienia kolejnych bransoletek.
+    Początkowo było to hobbystyczne, jednak w pewnym momencie
+    musiałam robić je tak często, że czasem nie wyrabiałam się z obiecanym terminem.
+    Pomyślałam w tedy, że najlepszym sposobem będzie podzielenie się moim pomysłem i pasją!
+    Wykonałam 30 pięknych bransoletek, opisałam je, spakowałam w ozdobnych woreczkach,
+    tak aby prezentowały się jak najlepiej i poszłam na rozmowę do mojego fryzjera kosmetycznego,
+    po tygodniu koszyk był pusty!
+    Dziewczyny kupowały je, myśląc, że będą idealnym prezentem dla siebie, koleżanek, mam, córek...</p>
+
+    <p>Uzupełniłam mój koszyk, jednak ten również nie został ze mną długo, ponieważ pojawiła się u mnie właścicielka
+    salonu fryzjerskiego z pobliskiej miejscowości i zapytała, czy również mogłaby kupić
+    WSZYSTKIE bransoletki, ponieważ w jej salonie również świetnie się sprzedawały.
+    W ten sposób powstał pomysł, który trwa do dziś
+    i proponuję ten zakup również Tobie ❤️</p>
   </div>
 </section>
 
 <section id="oferta">
   <div class="wrap">
     <h2>Oferta</h2>
-    <p>To Ty ustalasz ceny bransoletek w swoim salonie. W salonach, które już zaopatrzyliśmy, sprzedają się w kwotach między 30–50 zł.</p>
+    <p><strong>Ile możesz zyskać?</strong></p>
+    <p>To Ty ustalasz ceny bransoletek w swoim salonie.
+    W salonach, które już zaopatrzyliśmy,
+    sprzedają się w kwotach między 30–50 zł,
+    więc Twój zarobek jest tu jedynie Twoją decyzją.</p>
+
+    <p><strong>Jaki jest koszt?</strong></p>
+    <ul>
+      <li>START: 10 bransoletek – 20 zł/szt</li>
+      <li>MINI: 25 bransoletek – 17 zł/szt</li>
+      <li>MIDI: powyżej 45 bransoletek – 15 zł/szt</li>
+      <li>MAXI: powyżej 100 bransoletek – 11 zł/szt</li>
+    </ul>
+  </div>
+</section>
+
+<section id="dlaczego">
+  <div class="wrap">
+    <h2>Dlaczego to działa?</h2>
+
+    <div class="carousel" id="carousel">
+      <div class="carousel-track" id="track">
+        <!-- Oryginalne slajdy -->
+        <div class="card"><div class="card-inner">
+          <span class="icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 9 12 22 22 9 12 2"/></svg></span>
+          <div class="txt"><h3>Ozdoba na co dzień</h3><p>Delikatna biżuteria, którą klientki noszą od razu.</p></div>
+        </div></div>
+        <div class="card"><div class="card-inner">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5L12 2z"/></svg></span>
+          <div class="txt"><h3>Piękna ekspozycja</h3><p>Estetyczne opakowania i standy w salonie.</p></div>
+        </div></div>
+        <div class="card"><div class="card-inner">
+          <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" ry="2"/><circle cx="16" cy="12" r="1.8"/></svg></span>
+          <div class="txt"><h3>Dodatkowy zarobek</h3><p>Sprzedaż „przy okazji” – bez dodatkowej pracy.</p></div>
+        </div></div>
+        <div class="card"><div class="card-inner">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 5a4 4 0 0 1 6 0l2 2 2-2a4 4 0 0 1 6 6l-8 7-8-7a4 4 0 0 1 0-6z"/></svg></span>
+          <div class="txt"><h3>Duże zainteresowanie</h3><p>Klientki pytają, polecają i wracają.</p></div>
+        </div></div>
+        <div class="card"><div class="card-inner">
+          <span class="icon"><svg viewBox="0 0 24 24"><polyline points="3 17 8 12 12 15 21 6"/><rect x="3" y="17" width="2" height="4" rx="1"/></svg></span>
+          <div class="txt"><h3>Zysk min. 100%</h3><p>Swobodna polityka cen w salonie.</p></div>
+        </div></div>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <section id="galeria">
   <div class="wrap">
     <h2>Galeria</h2>
-    <p>Zdjęcia bransoletek wkrótce...</p>
+    <div class="gallery">
+      <figure class="tile"><img src="zdjecie1.jpg" alt="Bransoletka 1" loading="lazy"></figure>
+      <figure class="tile"><img src="zdjecie2.jpg" alt="Bransoletka 2" loading="lazy"></figure>
+      <figure class="tile"><img src="zdjecie3.jpg" alt="Bransoletka 3" loading="lazy"></figure>
+    </div>
   </div>
 </section>
 
 <section id="kontakt">
   <div class="wrap">
     <h2>Kontakt</h2>
-    <p>Zamówienia przyjmujemy w wiadomości prywatnej – Liliski ❤️</p>
+    <p>Zamówienia przyjmujemy w wiadomości prywatnej,<br>
+    na zakupy wystawiamy fakturę VAT,<br>
+    wysyłamy za pobraniem lub przez bezpieczne platformy:<br>
+    <strong>Allegro, OLX, Vinted ❤️</strong></p>
   </div>
 </section>
 
@@ -175,22 +258,130 @@
 </footer>
 
 <script>
-  /* Znikanie logo przy scrollu */
-  const headerEl = document.getElementById("header");
-  window.addEventListener("scroll", () => {
-    headerEl.style.opacity = (window.scrollY > 100) ? "0" : "1";
+/* --- Ustawienie --navH (wysokość nawigacji) dla offsetu treści --- */
+(function(){
+  const nav = document.getElementById('topnav');
+  function setNavH(){
+    const h = nav.offsetHeight || 72;
+    document.documentElement.style.setProperty('--navH', h + 'px');
+  }
+  setNavH();
+  window.addEventListener('resize', () => requestAnimationFrame(setNavH));
+})();
+
+/* --- Znikanie logo przy przewijaniu --- */
+const headerEl = document.getElementById("header");
+window.addEventListener("scroll", () => {
+  headerEl.style.opacity = (window.scrollY > 100) ? "0" : "1";
+});
+
+/* --- Hamburger menu (mobile) --- */
+const hamburger = document.getElementById("hamburger");
+const navLinks = document.getElementById("navLinks");
+hamburger.addEventListener("click", () => {
+  navLinks.classList.toggle("show");
+  hamburger.classList.toggle("open");
+  const expanded = hamburger.getAttribute('aria-expanded') === 'true';
+  hamburger.setAttribute('aria-expanded', (!expanded).toString());
+});
+/* Zamknij menu po kliknięciu linku (mobile) */
+navLinks.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click', ()=>{ navLinks.classList.remove('show'); hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false');});
+});
+
+/* --- Karuzela: 2 karty desktop / 1 karta mobile; pętla + drag + autoplay --- */
+(function(){
+  const track = document.getElementById('track');
+  const carousel = document.getElementById('carousel');
+
+  const DURATION = 550;   // ms (musi pasować do CSS)
+  const INTERVAL = 3000;  // autoplay
+
+  const originals = Array.from(track.children).map(n => n.cloneNode(true));
+
+  let visible = 2, index = 0, slideW = 0, timer = null;
+  let isDown = false, startX = 0, startIndex = 0, lastDX = 0;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const computeVisible = () => window.innerWidth < 820 ? 1 : 2;
+  const setTransition = on => track.style.transition = on ? `transform ${DURATION}ms ease-in-out` : 'none';
+  const clearTrack = () => { while(track.firstChild) track.removeChild(track.firstChild); };
+
+  function build(){
+    visible = computeVisible();
+    clearTrack();
+    // wrzuć oryginały, by mieć źródło clonów
+    originals.forEach(s => track.appendChild(s.cloneNode(true)));
+    const curr = Array.from(track.children);
+    const head = curr.slice(0, visible).map(n => n.cloneNode(true));
+    const tail = curr.slice(-visible).map(n => n.cloneNode(true));
+    clearTrack();
+    tail.forEach(n => track.appendChild(n));     // lewy bufor
+    curr.forEach(n => track.appendChild(n));     // oryginały
+    head.forEach(n => track.appendChild(n));     // prawy bufor
+    index = visible;
+    slideW = carousel.getBoundingClientRect().width / visible;
+    setTransition(false);
+    track.style.transform = `translateX(${-index * slideW}px)`;
+    void track.offsetWidth; setTransition(true);
+    stopAutoplay(); startAutoplay();
+  }
+
+  function goTo(i){ index = i; track.style.transform = `translateX(${-index * slideW}px)`; }
+  const next = () => goTo(index + 1);
+  const prev = () => goTo(index - 1);
+
+  track.addEventListener('transitionend', () => {
+    const total = track.children.length;
+    const maxIndex = total - visible - 1;
+    if (index > maxIndex){
+      setTransition(false); index = visible + (index - (maxIndex + 1));
+      track.style.transform = `translateX(${-index * slideW}px)`; void track.offsetWidth; setTransition(true);
+    }
+    if (index < visible){
+      setTransition(false); index = (total - visible - 1) - (visible - 1 - index);
+      track.style.transform = `translateX(${-index * slideW}px)`; void track.offsetWidth; setTransition(true);
+    }
   });
 
-  /* Obsługa hamburger menu */
-  const hamburger = document.getElementById("hamburger");
-  const navLinks = document.getElementById("navLinks");
-  hamburger.addEventListener("click", () => {
-    navLinks.classList.toggle("active");
-    hamburger.classList.toggle("open");
-  });
+  function startAutoplay(){ if (reduceMotion.matches) return; stopAutoplay(); timer = setInterval(next, INTERVAL); }
+  function stopAutoplay(){ if (timer){ clearInterval(timer); timer=null; } }
+  carousel.addEventListener('mouseenter', stopAutoplay);
+  carousel.addEventListener('mouseleave', startAutoplay);
+
+  // Drag / Swipe
+  function onPointerDown(e){
+    e.preventDefault(); isDown = true; stopAutoplay(); setTransition(false);
+    startX = e.clientX ?? e.touches?.[0]?.clientX ?? 0; startIndex = index; lastDX=0;
+    carousel.setPointerCapture?.(e.pointerId);
+  }
+  function onPointerMove(e){
+    if(!isDown) return;
+    const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    const dx = x - startX; lastDX=dx;
+    const off = -dx / slideW;
+    track.style.transform = `translateX(${(startIndex + off) * -slideW}px)`;
+  }
+  function onPointerUp(){
+    if(!isDown) return; isDown=false; setTransition(true);
+    const t = slideW * 0.25;
+    if (lastDX < -t) next(); else if (lastDX > t) prev(); else goTo(startIndex);
+    startAutoplay();
+  }
+  carousel.addEventListener('pointerdown', onPointerDown, {passive:false});
+  window.addEventListener('pointermove', onPointerMove, {passive:false});
+  window.addEventListener('pointerup', onPointerUp, {passive:true});
+  window.addEventListener('pointercancel', onPointerUp, {passive:true});
+
+  // Rebuild po resize
+  let rTO=null; window.addEventListener('resize', ()=>{ clearTimeout(rTO); rTO=setTimeout(build,120); });
+
+  build();
+})();
 </script>
 
 </body>
 </html>
+
 
 
