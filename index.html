@@ -83,10 +83,9 @@
   .hamburger.open span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
 
   /* ===== SEKCJE ===== */
-  /* offset kotwic – mniejszy, żeby nagłówek był bliżej paska */
+  /* Desktop: mały, przyjemny offset dla kotwic */
   section{ scroll-margin-top: calc(var(--navH) - 12px); }
 
-  /* padding pionowy sekcji też minimalnie mniejszy */
   section{ width:100%; padding:64px 0; }
   .wrap{ max-width:1100px; margin:0 auto; padding:0 20px; }
 
@@ -133,7 +132,10 @@
   /* ===== MOBILE ===== */
   @media (max-width: 820px){
     body{ background-attachment: scroll; }                     /* wydajniej */
-    nav{ position:fixed; top:0; left:0; right:0; }             /* stały pasek */
+    nav{
+      position:fixed; top:0; left:0; right:0;
+      padding-top: env(safe-area-inset-top);                   /* notch iOS */
+    }
     .nav-inner{ padding:0 12px; justify-content:space-between; }
     .hamburger{ display:flex; }
 
@@ -148,10 +150,16 @@
     .nav-links.show{ display:flex; }
     .nav-links a{ font-size:28px; padding:10px 14px; margin:6px 0; }
 
-    /* offset treści pod fixed nav – TYLKO NA MOBILE */
-    main{ padding-top: var(--navH); }
+    /* ✅ Logo w pełni pod paskiem */
+    header{ margin-top: var(--navH); }
 
-    section{ padding:56px 0; }
+    /* ✅ Mniejsze przerwy nad sekcjami */
+    main{ padding-top: 0; }                                   /* brak dublowania */
+    section{
+      padding: 44px 0;                                        /* ciaśniej */
+      scroll-margin-top: calc(var(--navH) - 16px);            /* bliżej paska */
+    }
+
     .wrap{ padding:0 16px; }
     .gallery{ flex-direction:column; align-items:center; }
     .tile{ width:92%; transform:none !important; }
