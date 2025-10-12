@@ -1,89 +1,3 @@
-<?php
-/* =========================
-   Blok PHP – obsługa formularza
-   ========================= */
-mb_internal_encoding('UTF-8');
-
-$sent = false;
-$error = null;
-
-/* PODMIEŃ TE DWA ADRESY PO PRÓBACH:
-   - $to        → docelowy odbiorca (np. Twój Gmail)
-   - $fromAddr  → nadawca techniczny z Twojej domeny na LH.pl (lepsza dostarczalność)
-*/
-$to       = 'twojmail@gmail.com';          // <-- DO KOGO: podmień na swój Gmail (albo skrzynkę z domeny)
-$fromAddr = 'no-reply@twojadomena.pl';     // <-- NADAWCA: podmień na skrzynkę w Twojej domenie (LH.pl)
-$subject  = 'Nowe zapytanie / zamówienie z formularza Liliski';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contact_form_flag'])) {
-  // Anty-spam: honeypot + minimalny czas wypełniania (>=3s)
-  $honeypot = trim($_POST['website'] ?? '');
-  $ts       = (int)($_POST['ts'] ?? 0);
-  if ($honeypot !== '' || (time() - $ts) < 3) {
-    $error = 'Nieprawidłowe żądanie.';
-  } else {
-    // Pola formularza
-    $name     = trim($_POST['name'] ?? '');
-    $surname  = trim($_POST['surname'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
-    $phone    = trim($_POST['phone'] ?? '');
-    $address  = trim($_POST['address'] ?? '');
-    $product  = trim($_POST['product'] ?? '');
-    $qty      = trim($_POST['qty'] ?? '');
-
-    // Walidacja
-    if ($name === '' || $surname === '' || $email === '' || $product === '' || $qty === '') {
-      $error = 'Wypełnij wymagane pola.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $error = 'Podaj poprawny adres e-mail.';
-    } elseif (!preg_match('/^\d{1,4}$/', $qty)) {
-      $error = 'Ilość powinna być liczbą 1–9999.';
-    } else {
-      // Ochrona przed wstrzyknięciem nagłówków
-      $bad = ["\r","\n","bcc:","cc:","content-type:"];
-      foreach (['name','surname','email','phone','product'] as $k) {
-        $$k = str_ireplace($bad, ' ', $$k);
-      }
-
-      // Treść wiadomości
-      $body  = "Nowe zgłoszenie z formularza Liliski\n\n";
-      $body .= "Imię: {$name}\n";
-      $body .= "Nazwisko: {$surname}\n";
-      $body .= "E-mail: {$email}\n";
-      $body .= "Telefon: {$phone}\n";
-      $body .= "Adres: {$address}\n";
-      $body .= "Produkt: {$product}\n";
-      $body .= "Ilość: {$qty}\n\n";
-      $body .= "IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'n/d') . "\n";
-      $body .= "Data: " . date('Y-m-d H:i:s') . "\n";
-
-      // Nagłówki (nadawca techniczny w Twojej domenie + Reply-To do klienta)
-      $domain  = $_SERVER['HTTP_HOST'] ?? 'twojadomena.pl';
-      $from    = $fromAddr ?: "no-reply@{$domain}";
-      $headers = [
-        "From: Liliski <{$from}>",
-        "Reply-To: {$name} {$surname} <{$email}>",
-        "MIME-Version: 1.0",
-        "Content-Type: text/plain; charset=UTF-8"
-      ];
-      $headers = implode("\r\n", $headers);
-
-      // Wysyłka
-      $ok = @mail($to, '=?UTF-8?B?'.base64_encode($subject).'?=', $body, $headers);
-      if ($ok) {
-        $sent = true;
-        // wyczyść POST po sukcesie, żeby formularz nie trzymał wartości
-        $_POST = [];
-      } else {
-        $error = 'Nie udało się wysłać wiadomości. Spróbuj ponownie później.';
-      }
-    }
-  }
-}
-
-// Helper do zachowania wartości pól po błędzie
-function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF-8'); }
-?>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -188,7 +102,7 @@ function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF
   .tile:nth-child(1){ --rot:-2.5deg; } .tile:nth-child(2){ --rot:2deg; } .tile:nth-child(3){ --rot:-1.5deg; }
   .tile:hover{ transform: rotate(0deg) scale(1.6); z-index:20; box-shadow:0 24px 60px rgba(0,0,0,.35); }
 
-  /* ===== FORMULARZ KONTAKTOWY ===== */
+  /* ===== FORMULARZ KONTAKTOWY (GitHub-ready) ===== */
   .form-card{ background:rgba(255,255,255,.95); border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.08); padding:18px; }
   form.contact{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
   .row-span-2{ grid-column:1 / -1; }
@@ -230,7 +144,7 @@ function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF
     header{ margin-top: var(--navH); }   /* logo w całości pod paskiem */
     main{ padding-top: 0; }
     section{
-      padding: 44px 0;
+      padding: 44px 0;                   /* ciaśniej na mobile */
       scroll-margin-top: calc(var(--navH) - 16px);
     }
 
@@ -245,6 +159,7 @@ function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF
     form.contact{ grid-template-columns:1fr; }
   }
 
+  /* preferencje ograniczenia animacji */
   @media (prefers-reduced-motion: reduce){ .carousel-track{ transition:none !important; } }
 </style>
 </head>
@@ -340,53 +255,54 @@ function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF
     <div class="wrap">
       <h2>Kontakt</h2>
 
-      <?php if ($sent): ?>
-        <div class="msg ok">✅ Dziękujemy! Wiadomość została wysłana. Odezwiemy się jak najszybciej.</div>
-      <?php elseif ($error): ?>
-        <div class="msg err">⚠️ <?=htmlspecialchars($error, ENT_QUOTES, 'UTF-8');?></div>
-      <?php endif; ?>
+      <!-- GitHub-ready komunikaty -->
+      <p id="formMsg" class="msg" style="display:none"></p>
 
       <div class="form-card">
-        <form class="contact" method="POST" action="#kontakt" novalidate>
-          <!-- flaga formularza na tej stronie -->
-          <input type="hidden" name="contact_form_flag" value="1">
-          <!-- honeypot + timestamp -->
+        <!--
+          GITHUB PAGES:
+          1) Zostaw action pusty — obsłuży to JS (fetch do FORM_ENDPOINT).
+          2) Wstaw swój endpoint z Formspree w stałej FORM_ENDPOINT (w <script> na dole).
+          LH.pl:
+          1) Zmień FORM_ENDPOINT na 'contact.php' (lub pełny URL do skryptu PHP).
+        -->
+        <form class="contact" id="contactForm" method="POST" action="">
+          <!-- honeypot (anty-spam) -->
           <input type="text" name="website" autocomplete="off" tabindex="-1" style="display:none">
-          <input type="hidden" name="ts" value="<?php echo time(); ?>">
 
           <div>
             <label for="name">Imię *</label>
-            <input id="name" name="name" required value="<?=old('name');?>">
+            <input id="name" name="name" required>
           </div>
 
           <div>
             <label for="surname">Nazwisko *</label>
-            <input id="surname" name="surname" required value="<?=old('surname');?>">
+            <input id="surname" name="surname" required>
           </div>
 
           <div>
             <label for="email">E-mail *</label>
-            <input id="email" name="email" type="email" required value="<?=old('email');?>">
+            <input id="email" name="email" type="email" required>
           </div>
 
           <div>
             <label for="phone">Telefon</label>
-            <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="+48 600 000 000" value="<?=old('phone');?>">
+            <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="+48 600 000 000">
           </div>
 
           <div class="row-span-2">
             <label for="address">Adres (wysyłka / rozliczenie)</label>
-            <textarea id="address" name="address" placeholder="Ulica, nr domu/mieszkania, kod, miejscowość"><?=old('address');?></textarea>
+            <textarea id="address" name="address" placeholder="Ulica, nr domu/mieszkania, kod, miejscowość"></textarea>
           </div>
 
           <div>
             <label for="product">Produkt *</label>
-            <input id="product" name="product" placeholder="np. Bransoletka cytryn" required value="<?=old('product');?>">
+            <input id="product" name="product" placeholder="np. Bransoletka cytryn" required>
           </div>
 
           <div>
             <label for="qty">Ilość (szt.) *</label>
-            <input id="qty" name="qty" type="number" min="1" max="9999" step="1" required value="<?=old('qty') ?: 1;?>">
+            <input id="qty" name="qty" type="number" min="1" max="9999" step="1" required value="1">
           </div>
 
           <div class="row-span-2">
@@ -408,6 +324,13 @@ function old($key){ return htmlspecialchars($_POST[$key] ?? '', ENT_QUOTES, 'UTF
 </footer>
 
 <script>
+/* --- USTAW TUTAJ ENDPOINT FORMULARZA --- */
+/* GitHub Pages: wstaw swój endpoint z Formspree, np.:
+   const FORM_ENDPOINT = "https://formspree.io/f/abcdwxyz";
+   LH.pl (później): zmień na "contact.php"
+*/
+const FORM_ENDPOINT = "https://formspree.io/f/your-endpoint-id";
+
 /* Znikanie logo przy scrollu */
 const headerEl = document.getElementById("header");
 window.addEventListener("scroll", () => {
@@ -536,13 +459,57 @@ window.addEventListener("scroll", () => {
 
   build();
 })();
+
+/* --- Formularz: fetch do endpointu (GitHub lub LH) --- */
+(function(){
+  const form = document.getElementById('contactForm');
+  const msg  = document.getElementById('formMsg');
+  if(!form) return;
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    msg.style.display='block';
+    msg.className='msg';
+    msg.textContent='Wysyłanie...';
+
+    try{
+      // Honeypot check
+      const hp = form.querySelector('input[name="website"]');
+      if(hp && hp.value.trim()!==''){
+        msg.className='msg err';
+        msg.textContent='Nieprawidłowe żądanie.';
+        return;
+      }
+
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+
+      if(res.ok){
+        msg.className='msg ok';
+        msg.textContent='Dziękujemy! Wiadomość wysłana.';
+        form.reset();
+      }else{
+        let txt = 'Ups! Coś poszło nie tak. Spróbuj ponownie.';
+        try{
+          const data = await res.json();
+          if(data && data.errors){ txt = data.errors.map(e=>e.message).join(', '); }
+        }catch(_){}
+        msg.className='msg err';
+        msg.textContent = txt;
+      }
+    }catch(err){
+      msg.className='msg err';
+      msg.textContent='Brak połączenia. Spróbuj ponownie.';
+    }
+  });
+})();
 </script>
 
 </body>
 </html>
-
-
-
 
 
 
