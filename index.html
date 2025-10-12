@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#ffffff" />
 <title>Liliski</title>
 
 <!-- Czcionki: Great Vibes (nagłówki i menu) + Poppins (tekst) -->
@@ -26,7 +27,7 @@
   header{
     text-align:center;
     background:rgba(255,255,255,.82);
-    padding:40px 20px;
+    padding: calc(20px + env(safe-area-inset-top)) 20px 40px;
     transition:opacity .8s ease;
     width:100%;
   }
@@ -45,9 +46,12 @@
     position:sticky; top:0; z-index:10;
     border-bottom:1px solid rgba(0,0,0,.06);
     width:100%;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    backdrop-filter: blur(6px);
   }
   nav a{
-    font-family: 'Great Vibes', cursive;   /* zastosowanie Great Vibes do menu */
+    font-family: 'Great Vibes', cursive;   /* Great Vibes dla menu */
     font-size: clamp(22px, 1.8vw + 6px, 34px);
     font-weight: 400;
     color:#444;
@@ -90,7 +94,7 @@
 
   /* ===== KARUZELA „DLACZEGO TO DZIAŁA” ===== */
   #dlaczego .wrap { overflow: visible; }
-  .carousel { overflow: hidden; position: relative; margin-top: 32px; }
+  .carousel { overflow: hidden; position: relative; margin-top: 32px; touch-action: pan-y; }
   .carousel-track { display:flex; will-change: transform; transition: transform .55s ease-in-out; }
   .card { flex: 0 0 50%; box-sizing: border-box; padding: 20px; }
   .card-inner{
@@ -110,9 +114,14 @@
   .txt h3{ margin:0 0 6px; font-size:1.1em; color:#222; }
   .txt p{ margin:0; color:#555; font-size:.95em; }
 
+  /* Ograniczenie animacji zgodne z preferencjami systemu */
+  @media (prefers-reduced-motion: reduce){
+    .carousel-track{ transition: none !important; }
+  }
+
   /* ===== FOOTER ===== */
   footer{
-    text-align:center; padding:24px 16px;
+    text-align:center; padding:24px 16px calc(24px + env(safe-area-inset-bottom));
     background:rgba(255,255,255,.92); color:#666; font-size:14px;
     border-top:1px solid rgba(0,0,0,.06); width:100%;
   }
@@ -121,17 +130,20 @@
   @media (max-width: 820px){
     section{ padding:56px 0; }
     .wrap{ padding:0 16px; }
+    nav a{ font-size: clamp(22px, 3.4vw + 6px, 36px); padding:10px 14px; }
     .gallery{ flex-direction:column; align-items:center; }
-    .tile{ width:90%; transform:none !important; }
-    .tile:hover{ transform:scale(1.06) !important; }
-    nav a{ font-size: clamp(22px, 3.4vw + 6px, 36px); }
+    .tile{ width:92%; transform:none !important; }
+    .tile:hover{ transform:scale(1.04) !important; }
+    /* karuzela: 1 karta na ekran */
+    .card{ flex: 0 0 100%; }
+    .card-inner{ height: 152px; }
   }
 </style>
 </head>
 <body>
 
 <header id="header">
-  <img src="logo.png" alt="Liliski – Biżuteria Marzeń">
+  <img src="logo.png" alt="Liliski – Biżuteria Marzeń" loading="lazy">
 </header>
 
 <nav>
@@ -171,7 +183,7 @@
 
     <div class="carousel" id="carousel">
       <div class="carousel-track" id="track">
-        <!-- oryginalne slajdy -->
+        <!-- Oryginalne slajdy -->
         <div class="card"><div class="card-inner">
           <span class="icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 9 12 22 22 9 12 2"/></svg></span>
           <div class="txt"><h3>Ozdoba na co dzień</h3><p>Delikatna biżuteria, którą klientki noszą od razu.</p></div>
@@ -206,9 +218,9 @@
   <div class="wrap">
     <h2>Galeria</h2>
     <div class="gallery">
-      <figure class="tile"><img src="zdjecie1.jpg" alt="Bransoletka 1"></figure>
-      <figure class="tile"><img src="zdjecie2.jpg" alt="Bransoletka 2"></figure>
-      <figure class="tile"><img src="zdjecie3.jpg" alt="Bransoletka 3"></figure>
+      <figure class="tile"><img src="zdjecie1.jpg" alt="Bransoletka 1" loading="lazy"></figure>
+      <figure class="tile"><img src="zdjecie2.jpg" alt="Bransoletka 2" loading="lazy"></figure>
+      <figure class="tile"><img src="zdjecie3.jpg" alt="Bransoletka 3" loading="lazy"></figure>
     </div>
   </div>
 </section>
@@ -234,82 +246,101 @@ window.addEventListener("scroll", () => {
   header.style.opacity = (window.scrollY > 100) ? "0" : "1";
 });
 
-/* ===== Karuzela 2-na-ekran: infinite loop + drag + autoplay ===== */
+/* ===== Karuzela: 2 karty na desktopie, 1 na mobile; infinite, drag, autoplay ===== */
 (function(){
   const track = document.getElementById('track');
   const carousel = document.getElementById('carousel');
 
-  // konfiguracja
-  const VISIBLE = 2;          // ile widać na raz
-  const STEP = 1;             // o ile kart przesuwamy
-  const DURATION = 550;       // ms (musi pasować do CSS transition)
-  const INTERVAL = 3000;      // autoplay
+  const DURATION = 550;      // ms – pasuje do CSS
+  const INTERVAL = 3000;     // autoplay
 
-  // przygotowanie: klonujemy po 2 na oba końce
-  function setupClones(){
-    const kids = Array.from(track.children);
-    const head = kids.slice(0, VISIBLE);
-    const tail = kids.slice(-VISIBLE);
-    tail.forEach(el => track.insertBefore(el.cloneNode(true), track.firstChild));
-    head.forEach(el => track.appendChild(el.cloneNode(true)));
+  // Zachowujemy ORYGINALNY zestaw slajdów, żeby móc odbudować po resize
+  const originalSlides = Array.from(track.children).map(el => el.cloneNode(true));
+
+  let visible = 2;   // ile widać na raz (desktop 2, mobile 1)
+  let index = 0;     // aktualny indeks (liczony z uwzględnieniem klonów)
+  let slideW = 0;    // szerokość pojedynczej karty
+  let timer = null;
+  let isDown = false, startX = 0, startIndex = 0, lastDX = 0;
+
+  function computeVisible(){
+    return window.innerWidth < 820 ? 1 : 2;
   }
-  setupClones();
 
-  let slides = Array.from(track.children);
-  let index = VISIBLE; // start po klonach z lewej
-  let slideW = 0;
-
-  function getSlideWidth(){
-    // szerokość jednego slajdu = połowa szerokości karuzeli (2 na ekran)
-    return carousel.getBoundingClientRect().width / VISIBLE;
-  }
   function setTransition(on){
     track.style.transition = on ? `transform ${DURATION}ms ease-in-out` : 'none';
   }
-  function snap(){
+
+  function clearTrack(){
+    while(track.firstChild) track.removeChild(track.firstChild);
+  }
+
+  function build(){
+    // 1) Ustal ile ma być widocznych
+    visible = computeVisible();
+
+    // 2) Odbuduj listę: [klony ogona] + [oryginały] + [klony głowy]
+    clearTrack();
+    originalSlides.forEach(sl => track.appendChild(sl.cloneNode(true))); // tymczasowo, żeby mieć się z czego klonować
+    const current = Array.from(track.children);
+    const head = current.slice(0, visible).map(el => el.cloneNode(true));
+    const tail = current.slice(-visible).map(el => el.cloneNode(true));
+
+    // wyczyść i złóż finalnie
+    clearTrack();
+    tail.forEach(el => track.appendChild(el));         // lewy bufor
+    current.forEach(el => track.appendChild(el));      // oryginały
+    head.forEach(el => track.appendChild(el));         // prawy bufor
+
+    // 3) Pozycje i wymiary
+    index = visible;                                   // start tuż po lewym buforze
+    slideW = carousel.getBoundingClientRect().width / visible;
+
     setTransition(false);
-    slideW = getSlideWidth();
     track.style.transform = `translateX(${-index * slideW}px)`;
-    void track.offsetWidth; // reflow
+    // reflow
+    void track.offsetWidth;
     setTransition(true);
   }
-  // inicjalna pozycja
-  snap();
 
-  function goTo(newIndex){ index = newIndex; track.style.transform = `translateX(${-index * slideW}px)`; }
-  function next(){ goTo(index + STEP); }
-  function prev(){ goTo(index - STEP); }
+  function goTo(newIndex){
+    index = newIndex;
+    track.style.transform = `translateX(${-index * slideW}px)`;
+  }
+  function next(){ goTo(index + 1); }
+  function prev(){ goTo(index - 1); }
 
-  // pętla bez „mrugnięć”
+  function startAutoplay(){
+    // respektuj prefers-reduced-motion
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduce.matches) return;
+    stopAutoplay();
+    timer = setInterval(next, INTERVAL);
+  }
+  function stopAutoplay(){ if (timer) { clearInterval(timer); timer = null; } }
+
+  // Pętla bez „mrugnięć”
   track.addEventListener('transitionend', () => {
-    slides = Array.from(track.children);
-    const maxIndex = slides.length - VISIBLE - 1; // ostatni bez klonów
+    const total = track.children.length;
+    const maxIndex = total - visible - 1; // ostatni indeks przed prawym buforem
     if (index > maxIndex){
       setTransition(false);
-      index = VISIBLE + (index - (maxIndex + 1));
+      index = visible + (index - (maxIndex + 1));
       track.style.transform = `translateX(${-index * slideW}px)`;
       void track.offsetWidth; setTransition(true);
     }
-    if (index < VISIBLE){
+    if (index < visible){
       setTransition(false);
-      index = (slides.length - VISIBLE - 1) - (VISIBLE - 1 - index);
+      index = (total - visible - 1) - (visible - 1 - index);
       track.style.transform = `translateX(${-index * slideW}px)`;
       void track.offsetWidth; setTransition(true);
     }
   });
 
-  // autoplay z pauzą
-  let timer = setInterval(next, INTERVAL);
-  function pause(){ clearInterval(timer); timer = null; }
-  function resume(){ if(!timer) timer = setInterval(next, INTERVAL); }
-  carousel.addEventListener('mouseenter', pause);
-  carousel.addEventListener('mouseleave', resume);
-
-  // drag/swipe – Pointer Events (mysz + dotyk)
-  let isDown = false, startX = 0, startIndex = 0, lastDX = 0;
+  // Drag/Swipe – Pointer Events
   function onPointerDown(e){
     e.preventDefault();
-    isDown = true; pause(); setTransition(false);
+    isDown = true; stopAutoplay(); setTransition(false);
     startX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
     startIndex = index; lastDX = 0;
     carousel.setPointerCapture?.(e.pointerId);
@@ -324,20 +355,34 @@ window.addEventListener("scroll", () => {
   }
   function onPointerUp(){
     if(!isDown) return; isDown = false; setTransition(true);
-    const threshold = slideW * 0.25;
+    const threshold = slideW * 0.25; // próg 25% szerokości slajdu
     if (lastDX < -threshold) next();
     else if (lastDX > threshold) prev();
     else goTo(startIndex);
-    resume();
+    startAutoplay();
   }
 
+  // Listeners (rejestrujemy raz)
   carousel.addEventListener('pointerdown', onPointerDown, {passive:false});
   window.addEventListener('pointermove', onPointerMove, {passive:false});
   window.addEventListener('pointerup', onPointerUp, {passive:true});
   window.addEventListener('pointercancel', onPointerUp, {passive:true});
 
-  // przeliczenie po resize – zachowanie płynności
-  window.addEventListener('resize', snap);
+  // Hover pauzuje autoplay (na desktopie)
+  carousel.addEventListener('mouseenter', stopAutoplay);
+  carousel.addEventListener('mouseleave', startAutoplay);
+
+  // Reakcja na zmianę rozmiaru – przebuduj klony i przelicz wymiary
+  let resizeTO = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTO);
+    resizeTO = setTimeout(() => { build(); }, 120);
+  });
+
+  // Inicjalizacja
+  build();
+  startAutoplay();
+
 })();
 </script>
 
