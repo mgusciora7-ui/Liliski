@@ -12,9 +12,9 @@
 <style>
   :root { --accent:#d36b8a; --navH:72px; }
 
-  /* === KLUCZOWA POPRAWKA SZEROKOŚCI === */
+  /* Kluczowe: nic nie wychodzi poza kolumny */
   *, *::before, *::after { box-sizing: border-box; }
-  input, textarea, select { width:100%; max-width:100%; } /* nie wyjdą poza kolumnę */
+  input, textarea, select { width:100%; max-width:100%; }
 
   html { scroll-behavior:smooth; color-scheme: only light; }
   body{
@@ -24,7 +24,7 @@
     background:url("tlo.jpg") center/cover no-repeat fixed;
   }
 
-  /* ===== HEADER ===== */
+  /* HEADER (logo znika przy scrollu) */
   header{
     text-align:center; background:rgba(255,255,255,.82);
     padding:0 20px 40px; transition:opacity .8s ease; width:100%;
@@ -34,7 +34,7 @@
     max-width:92%; height:auto; display:block; margin:12px auto 0;
   }
 
-  /* ===== NAV ===== */
+  /* NAV */
   nav{
     position:sticky; top:0; z-index:40;
     background:rgba(255,255,255,.92);
@@ -55,7 +55,7 @@
   }
   .nav-links a:hover{ transform:scale(1.06); color:var(--accent); background:rgba(211,107,138,.12); }
 
-  /* ===== HAMBURGER (mobile) ===== */
+  /* HAMBURGER (mobile) */
   .hamburger{
     display:none; flex-direction:column; align-items:center; justify-content:center;
     width:44px; height:44px; margin:10px 0 10px -6px; cursor:pointer;
@@ -68,9 +68,8 @@
   .hamburger.open span:nth-child(2){ opacity:0; }
   .hamburger.open span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
 
-  /* ===== SEKCJE ===== */
-  section{ scroll-margin-top: calc(var(--navH) - 12px); }
-  section{ width:100%; padding:64px 0; }
+  /* SEKCJE */
+  section{ scroll-margin-top: calc(var(--navH) - 12px); width:100%; padding:64px 0; }
   .wrap{ max-width:1100px; margin:0 auto; padding:0 20px; }
 
   h2{
@@ -79,11 +78,11 @@
   }
   p { font-size:1.05em; margin:0 0 1.1em; }
 
-  /* ===== KARUZELA ===== */
+  /* KARUZELA */
   #dlaczego .wrap{ overflow:visible; }
   .carousel{ overflow:hidden; position:relative; margin-top:32px; touch-action: pan-y; }
   .carousel-track{ display:flex; will-change:transform; transition: transform .55s ease-in-out; }
-  .card{ flex:0 0 50%; box-sizing:border-box; padding:20px; }
+  .card{ flex:0 0 50%; padding:20px; }
   .card-inner{
     background:rgba(255,255,255,.95); border-radius:28px;
     box-shadow:0 10px 25px rgba(0,0,0,.12);
@@ -94,33 +93,29 @@
   .txt h3{ margin:0 0 8px; font-size:1.1em; color:#222; }
   .txt p{ margin:0; color:#555; font-size:1em; }
 
-  /* ===== GALERIA ===== */
+  /* GALERIA */
   .gallery{ display:flex; justify-content:center; gap:min(3vw,24px); margin-top:10px; }
   .tile{
     width:28%; min-width:220px; border-radius:16px; overflow:hidden;
     box-shadow:0 8px 18px rgba(0,0,0,.14);
     transform: rotate(var(--rot,0deg));
     transition: transform .45s ease, box-shadow .3s ease, z-index .2s ease;
-    cursor:pointer; position:relative;
+    cursor:pointer;
   }
   .tile img{ width:100%; height:auto; display:block; object-fit:cover; }
   .tile:nth-child(1){ --rot:-2.5deg; } .tile:nth-child(2){ --rot:2deg; } .tile:nth-child(3){ --rot:-1.5deg; }
   .tile:hover{ transform: rotate(0deg) scale(1.6); z-index:20; box-shadow:0 24px 60px rgba(0,0,0,.35); }
 
-  /* ===== FORMULARZ ===== */
+  /* FORMULARZ */
   .form-card{
     background:rgba(255,255,255,.95); border-radius:18px;
     box-shadow:0 10px 30px rgba(0,0,0,.08); padding:18px;
-    overflow:hidden; /* zabezpieczenie przed "wyjściem" środka */
+    overflow:hidden;
   }
-  form.contact{
-    display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;
-  }
+  form.contact{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
   .row-span-2{ grid-column:1 / -1; }
   label{ font-weight:600; font-size:14px; color:#444; display:block; margin-bottom:6px; }
-  input, textarea{
-    padding:12px 14px; border-radius:12px; border:1px solid #ddd; font:inherit; background:#fff;
-  }
+  input, textarea{ padding:12px 14px; border-radius:12px; border:1px solid #ddd; font:inherit; background:#fff; }
   textarea{ min-height:110px; resize:vertical; }
   .actions{ display:flex; gap:10px; margin-top:6px; }
   button{ padding:12px 18px; border:0; border-radius:14px; font-weight:600; cursor:pointer; }
@@ -130,21 +125,18 @@
   .ok{ background:#e9f7ef; color:#2e7d32; }
   .err{ background:#fdecea; color:#b00020; }
 
-  /* ===== FOOTER ===== */
+  /* FOOTER */
   footer{ text-align:center; padding:24px 16px; background:rgba(255,255,255,.92); color:#666; font-size:14px; border-top:1px solid rgba(0,0,0,.06); }
 
-  /* ===== MOBILE ===== */
+  /* MOBILE */
   @media (max-width: 820px){
     body{ background-attachment: scroll; }
-    nav{
-      position:fixed; top:0; left:0; right:0;
-      padding-top: env(safe-area-inset-top);
-    }
+    nav{ position:fixed; top:0; left:0; right:0; padding-top: env(safe-area-inset-top); }
     .nav-inner{ padding:0 12px; justify-content:space-between; }
     .hamburger{ display:flex; }
     .nav-links{
       display:none; position:absolute; top:100%; left:0; right:0;
-      flex-direction:column; align-items:center; gap:0;
+      flex-direction:column; align-items:center;
       background:rgba(255,255,255,.97);
       border-bottom:1px solid rgba(0,0,0,.06);
       padding:8px 0 14px;
@@ -152,26 +144,16 @@
     .nav-links.show{ display:flex; }
     .nav-links a{ font-size:28px; padding:10px 14px; margin:6px 0; }
 
-    header{ margin-top: var(--navH); }   /* logo w całości pod paskiem */
-    main{ padding-top: 0; }
-    section{
-      padding: 44px 0;                   /* ciaśniej na mobile */
-      scroll-margin-top: calc(var(--navH) - 16px);
-    }
-
+    header{ margin-top: var(--navH); }         /* logo w całości pod paskiem */
+    section{ padding: 44px 0; scroll-margin-top: calc(var(--navH) - 16px); }
     .wrap{ padding:0 16px; }
     .gallery{ flex-direction:column; align-items:center; }
     .tile{ width:92%; transform:none !important; }
     .tile:hover{ transform:scale(1.04) !important; }
     .card{ flex:0 0 100%; }
-    .card-inner{ height:160px; padding:24px; }
-
     .form-card{ padding:16px; }
     form.contact{ grid-template-columns:1fr; }
   }
-
-  /* preferencje ograniczenia animacji */
-  @media (prefers-reduced-motion: reduce){ .carousel-track{ transition:none !important; } }
 </style>
 </head>
 <body>
@@ -196,19 +178,45 @@
 </nav>
 
 <main>
+  <!-- O NAS — pełny tekst -->
   <section id="onas">
     <div class="wrap">
       <h2>O nas</h2>
       <p><strong>Skąd ten pomysł?</strong></p>
-      <p>Pierwsza bransoletka pojawiła się z potrzeby wiary. Większość z nas chce przyciągać do siebie bogactwo i szczęście – to zapewnia cytryn. Postanowiłam zrobić bransoletkę sama, tak aby miała dla mnie jeszcze większą wartość, zakupiłam potrzebne mi materiały i zrobiłam ją! Z pomocą męża stworzyłam swoją bransoletkę z kamieni naturalnych.</p>
-      <p>Nie spodziewałam się, że przyciągnie ona tyle uwagi, jednak już po dniu przyjaciółka poprosiła mnie o zrobienie 2 sztuk. Za nią posypały się zamówienia kolejnych bransoletek. W ten sposób powstał pomysł, który trwa do dziś i proponuję ten zakup również Tobie ❤️</p>
+      <p>Pierwsza bransoletka pojawiła się z potrzeby wiary.
+      Większość z nas chce przyciągać do siebie bogactwo i szczęście – to zapewnia cytryn.
+      Postanowiłam zrobić bransoletkę sama, tak aby miała dla mnie jeszcze większą wartość,
+      zakupiłam potrzebne mi materiały i zrobiłam ją!
+      Z pomocą męża stworzyłam swoją bransoletkę z kamieni naturalnych.
+      Nie spodziewałam się, że przyciągnie ona tyle uwagi,
+      jednak już po dniu przyjaciółka poprosiła mnie o zrobienie 2 sztuk.
+      Za nią posypały się zamówienia kolejnych bransoletek.</p>
+
+      <p>Początkowo było to hobbystyczne, jednak w pewnym momencie
+      musiałam robić je tak często, że czasem nie wyrabiałam się z obiecanym terminem.
+      Pomyślałam wtedy, że najlepszym sposobem będzie podzielenie się moim pomysłem i pasją!
+      Wykonałam 30 pięknych bransoletek, opisałam je, spakowałam w ozdobnych woreczkach,
+      tak aby prezentowały się jak najlepiej i poszłam na rozmowę do mojego fryzjera kosmetycznego,
+      po tygodniu koszyk był pusty!
+      Dziewczyny kupowały je, myśląc, że będą idealnym prezentem dla siebie, koleżanek, mam, córek...</p>
+
+      <p>Uzupełniłam mój koszyk, jednak ten również nie został ze mną długo, ponieważ pojawiła się u mnie właścicielka
+      salonu fryzjerskiego z pobliskiej miejscowości i zapytała, czy również mogłaby kupić
+      WSZYSTKIE bransoletki, ponieważ w jej salonie również świetnie się sprzedawały.
+      W ten sposób powstał pomysł, który trwa do dziś
+      i proponuję ten zakup również Tobie ❤️</p>
     </div>
   </section>
 
+  <!-- OFERTA -->
   <section id="oferta">
     <div class="wrap">
       <h2>Oferta</h2>
-      <p><strong>Ile możesz zyskać?</strong> To Ty ustalasz ceny bransoletek w swoim salonie. W salonach, które już zaopatrzyliśmy, sprzedają się w kwotach między 30–50 zł, więc Twój zarobek jest tu jedynie Twoją decyzją.</p>
+      <p><strong>Ile możesz zyskać?</strong> To Ty ustalasz ceny bransoletek w swoim salonie.
+      W salonach, które już zaopatrzyliśmy,
+      sprzedają się w kwotach między 30–50 zł,
+      więc Twój zarobek jest tu jedynie Twoją decyzją.</p>
+
       <p><strong>Jaki jest koszt?</strong></p>
       <ul>
         <li>START: 10 bransoletek – 20 zł/szt</li>
@@ -219,6 +227,7 @@
     </div>
   </section>
 
+  <!-- DLACZEGO TO DZIAŁA? (karuzela) -->
   <section id="dlaczego">
     <div class="wrap">
       <h2>Dlaczego to działa?</h2>
@@ -251,6 +260,7 @@
     </div>
   </section>
 
+  <!-- GALERIA -->
   <section id="galeria">
     <div class="wrap">
       <h2>Galeria</h2>
@@ -262,6 +272,7 @@
     </div>
   </section>
 
+  <!-- KONTAKT (Pakiet / Ilość pakietów) -->
   <section id="kontakt">
     <div class="wrap">
       <h2>Kontakt</h2>
@@ -300,12 +311,12 @@
           </div>
 
           <div>
-            <label for="product">Produkt *</label>
-            <input id="product" name="product" placeholder="np. Bransoletka cytryn" required>
+            <label for="product">Pakiet *</label>
+            <input id="product" name="product" placeholder="np. MINI" required>
           </div>
 
           <div>
-            <label for="qty">Ilość (szt.) *</label>
+            <label for="qty">Ilość pakietów *</label>
             <input id="qty" name="qty" type="number" min="1" max="9999" step="1" required value="1">
           </div>
 
@@ -328,7 +339,10 @@
 </footer>
 
 <script>
-/* --- ENDPOINT formularza --- */
+/* Gdzie wysyła formularz:
+   - GitHub Pages: wstaw swój endpoint Formspree, np. "https://formspree.io/f/abcd1234"
+   - LH.pl (później): zmień na "contact.php"
+*/
 const FORM_ENDPOINT = "https://formspree.io/f/your-endpoint-id";
 
 /* Znikanie logo przy scrollu */
@@ -356,6 +370,7 @@ window.addEventListener("scroll", () => {
     requestAnimationFrame(setNavH);
   });
 
+  // zamknij po kliknięciu linku
   navLinks.querySelectorAll('a').forEach(a=>{
     a.addEventListener('click', ()=>{
       navLinks.classList.remove('show');
@@ -369,7 +384,7 @@ window.addEventListener("scroll", () => {
   window.addEventListener('resize', () => requestAnimationFrame(setNavH));
 })();
 
-/* Karuzela (autoplay + drag + pętla) */
+/* Karuzela: autoplay + drag + pętla, 2 karty desktop / 1 mobile */
 (function(){
   const track = document.getElementById('track');
   const carousel = document.getElementById('carousel');
@@ -395,9 +410,9 @@ window.addEventListener("scroll", () => {
     const head = curr.slice(0, visible).map(n => n.cloneNode(true));
     const tail = curr.slice(-visible).map(n => n.cloneNode(true));
     clearTrack();
-    tail.forEach(n => track.appendChild(n));
-    curr.forEach(n => track.appendChild(n));
-    head.forEach(n => track.appendChild(n));
+    tail.forEach(n => track.appendChild(n));   // lewy bufor
+    curr.forEach(n => track.appendChild(n));   // oryginały
+    head.forEach(n => track.appendChild(n));   // prawy bufor
     index = visible;
     slideW = carousel.getBoundingClientRect().width / visible;
     setTransition(false);
@@ -470,6 +485,7 @@ window.addEventListener("scroll", () => {
     msg.textContent='Wysyłanie...';
 
     try{
+      // Honeypot check
       const hp = form.querySelector('input[name="website"]');
       if(hp && hp.value.trim()!==''){
         msg.className='msg err';
@@ -506,6 +522,7 @@ window.addEventListener("scroll", () => {
 
 </body>
 </html>
+
 
 
 
